@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MPU6050 BLE Monitor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 700px;
+            width: 100%;
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        .status {
+            text-align: center;
+            padding: 12px;
+            background: #f44336;
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        .status.connected {
+            background: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        .angles-section {
+            margin-bottom: 25px;
+        }
+        .angle-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 10px 0;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .angle-label {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .angle-value {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .data-box {
+            background: #f7f7f7;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+            transition: transform 0.2s;
+        }
+        .data-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .data-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        .data-value {
+            font-size: 20px;
+            color: #333;
+            font-weight: bold;
+        }
+        .accel { border-left: 4px solid #4CAF50; }
+        .gyro { border-left: 4px solid #2196F3; }
+        .motor { border-left: 4px solid #FF9800; }
+        .motor-section {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 2px solid #e0e0e0;
+        }
+        .motor-header {
+            text-align: center;
+            color: #FF9800;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .control-section {
+            margin-top: 20px;
+            background: #f7f7f7;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .slider-container {
+            margin: 15px 0;
+        }
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #FF9800;
+            cursor: pointer;
+        }
+        .slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #FF9800;
+            cursor: pointer;
+            border: none;
+        }
+        .control-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .control-btn {
+            padding: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #667eea;
+            color: white;
+            transition: all 0.2s;
+        }
+        .control-btn:hover {
+            transform: scale(1.05);
+        }
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+        .stop-btn {
+            background: #f44336;
+            grid-column: span 3;
+        }
+        .pid-section {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 2px solid #e0e0e0;
+        }
+        .pid-header {
+            text-align: center;
+            color: #9C27B0;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .pid-controls {
+            background: #f7f7f7;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .pid-input-group {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            gap: 10px;
+        }
+        .pid-input-label {
+            font-weight: 600;
+            color: #333;
+            min-width: 40px;
+        }
+        .pid-input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .pid-btn {
+            padding: 10px 20px;
+            background: #9C27B0;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .pid-btn:hover {
+            background: #7B1FA2;
+        }
+        .balance-toggle {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+        }
+        .toggle-label {
+            font-weight: 600;
+            font-size: 16px;
+            color: #333;
+        }
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: #ccc;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .toggle-switch.active {
+            background: #4CAF50;
+        }
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(30px);
+        }
+        .timestamp {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Balance Bot Controller</h1>
+        <div class="subtitle">Self-Balancing Robot via BLE</div>
+        
+        <button id="connectBtn">Connect via Bluetooth</button>
+        
+        <div class="status" id="status">● Disconnected</div>
+        
+        <div class="angles-section">
+            <div class="angle-box">
+                <div class="angle-label">Roll Angle (X)</div>
+                <div class="angle-value" id="roll">0.00°</div>
+            </div>
+            <div class="angle-box">
+                <div class="angle-label">Pitch Angle (Y)</div>
+                <div class="angle-value" id="pitch">0.00°</div>
+            </div>
+        </div>
+        
+        <div class="data-grid">
+            <div class="data-box accel">
+                <div class="data-label">Accel X</div>
+                <div class="data-value" id="ax">0</div>
+            </div>
+            <div class="data-box accel">
+                <div class="data-label">Accel Y</div>
+                <div class="data-value" id="ay">0</div>
+            </div>
+            <div class="data-box accel">
+                <div class="data-label">Accel Z</div>
+                <div class="data-value" id="az">0</div>
+            </div>
+            <div class="data-box gyro">
+                <div class="data-label">Gyro X</div>
+                <div class="data-value" id="gx">0</div>
+            </div>
+            <div class="data-box gyro">
+                <div class="data-label">Gyro Y</div>
+                <div class="data-value" id="gy">0</div>
+            </div>
+            <div class="data-box gyro">
+                <div class="data-label">Gyro Z</div>
+                <div class="data-value" id="gz">0</div>
+            </div>
+        </div>
+        
+        <div class="motor-section">
+            <div class="motor-header">⚙️ Motor Status</div>
+            <div class="data-grid" style="grid-template-columns: repeat(2, 1fr);">
+                <div class="data-box motor">
+                    <div class="data-label">Motor A Speed</div>
+                    <div class="data-value" id="motorA">0</div>
+                </div>
+                <div class="data-box motor">
+                    <div class="data-label">Motor B Speed</div>
+                    <div class="data-value" id="motorB">0</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="pid-section">
+            <div class="pid-header">🎛️ PID Tuning</div>
+            <div class="pid-controls">
+                <div class="balance-toggle">
+                    <span class="toggle-label">Auto-Balance:</span>
+                    <div class="toggle-switch" id="balanceToggle" onclick="toggleBalance()">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                
+                <div class="pid-input-group">
+                    <span class="pid-input-label">Target:</span>
+                    <input type="number" id="targetInput" class="pid-input" value="0" step="0.1" placeholder="Balance angle offset" onchange="sendPID('TARGET')">
+                </div>
+                
+                <div class="pid-input-group">
+                    <span class="pid-input-label">Kp:</span>
+                    <input type="number" id="kpInput" class="pid-input" value="40" step="0.1" onchange="sendPID('KP')">
+                </div>
+                
+                <div class="pid-input-group">
+                    <span class="pid-input-label">Ki:</span>
+                    <input type="number" id="kiInput" class="pid-input" value="0.5" step="0.01" onchange="sendPID('KI')">
+                </div>
+                
+                <div class="pid-input-group">
+                    <span class="pid-input-label">Kd:</span>
+                    <input type="number" id="kdInput" class="pid-input" value="1.2" step="0.1" onchange="sendPID('KD')">
+                </div>
+                
+                <div class="pid-input-group">
+                    <span class="pid-input-label">Min:</span>
+                    <input type="number" id="minInput" class="pid-input" value="40" min="40" max="200" step="5" placeholder="Min effective speed" onchange="sendPID('MIN')">
+                </div>
+
+                <div class="pid-input-group">
+                    <span class="pid-input-label">Speed:</span>
+                    <input type="number" id="speedInput" class="pid-input" value="255" min="50" max="255" step="5" placeholder="Max motor speed" onchange="sendPID('SPEED')">
+                </div>
+            </div>
+            
+            <div class="control-section">
+                <h3 style="text-align: center; margin-bottom: 15px; color: #666;">Manual Override</h3><div class="slider-container">
+                    <div class="slider-label">
+                        <span>Motor A</span>
+                        <span id="sliderValueA">0</span>
+                    </div>
+                    <input type="range" min="-255" max="255" value="0" class="slider" id="sliderA">
+                </div>
+                
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Motor B</span>
+                        <span id="sliderValueB">0</span>
+                    </div>
+                    <input type="range" min="-255" max="255" value="0" class="slider" id="sliderB">
+                </div>
+                
+                <div class="control-buttons">
+                    <button class="control-btn" onclick="quickMove(150, 150)">⬆️ Forward</button>
+                    <button class="control-btn" onclick="quickMove(-150, 150)">↶ Left</button>
+                    <button class="control-btn" onclick="quickMove(150, -150)">↷ Right</button>
+                    <button class="control-btn" onclick="quickMove(-150, -150)">⬇️ Backward</button>
+                    <button class="control-btn stop-btn" onclick="stopMotors()">🛑 STOP</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="timestamp">Last reading: <span id="timestamp">-</span></div>
+    </div>
+
+<script>
+    const connectBtn = document.getElementById('connectBtn');
+    const messageDiv = document.getElementById('message');
+    const statusDiv = document.getElementById('status');
+
+    const SERVICE_UUID = '19b10000-e8f2-537e-4f6c-d104768a1214';
+    const CHAR_UUID = '19b10001-e8f2-537e-4f6c-d104768a1214';
+    const CONTROL_CHAR_UUID = '19b10002-e8f2-537e-4f6c-d104768a1214';
+
+    let bleServer;
+    let bleCharacteristic;
+    let bleControlCharacteristic;
+
+    connectBtn.addEventListener('click', connectBLE);
+
+    async function connectBLE() {
+        try {
+            if (!navigator.bluetooth) {
+                alert('Web Bluetooth is not supported! Use Chrome, Edge, or Opera.');
+                return;
+            }
+
+            statusDiv.textContent = 'Connecting...';
+
+            const device = await navigator.bluetooth.requestDevice({
+                filters: [{name: 'ESP32_BalanceBot'}],
+                optionalServices: [SERVICE_UUID]
+            });
+
+            statusDiv.textContent = 'Connecting to GATT Server...';
+            bleServer = await device.gatt.connect();
+
+            statusDiv.textContent = 'Getting Service...';
+            const service = await bleServer.getPrimaryService(SERVICE_UUID);
+
+            statusDiv.textContent = 'Getting Characteristic...';
+            bleCharacteristic = await service.getCharacteristic(CHAR_UUID);
+            bleControlCharacteristic = await service.getCharacteristic(CONTROL_CHAR_UUID);
+
+            // Start notifications
+            await bleCharacteristic.startNotifications();
+            bleCharacteristic.addEventListener('characteristicvaluechanged', handleValueChanged);
+
+            // Read initial value
+            const value = await bleCharacteristic.readValue();
+            const text = new TextDecoder().decode(value);
+            updateDisplay(text);
+            
+            // Setup slider listeners
+            setupSliders();
+            
+            statusDiv.textContent = '● Connected';
+            statusDiv.classList.add('connected');
+        } catch (error) {
+            console.error('Error:', error);
+            statusDiv.textContent = '● Connection failed: ' + error;
+            statusDiv.classList.remove('connected');
+        }
+    }
+
+    function onDisconnected(event) {
+        console.log('Device Disconnected');
+        statusDiv.textContent = '● Disconnected';
+        statusDiv.classList.remove('connected');
+    }   
+    
+
+    function handleValueChanged(event) {
+        const value = event.target.value;
+        const text = new TextDecoder().decode(value);
+        updateDisplay(text);
+        document.getElementById('timestamp').textContent = getDateTime();
+    }
+
+    const updateHold = { KP: 0, KI: 0, KD: 0, TARGET: 0, SPEED: 0 };
+
+    function setIfIdle(id, value, key) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (document.activeElement === el) return; // do not overwrite while user is editing
+        if (key && Date.now() < updateHold[key]) return; // skip if recent local update
+        if (el.value != value) el.value = value;
+    }
+
+    function updateDisplay(jsonString) {
+        try {
+            const data = JSON.parse(jsonString);
+            document.getElementById('roll').textContent = data.roll + '°';
+            document.getElementById('pitch').textContent = data.pitch + '°';
+            document.getElementById('ax').textContent = data.ax;
+            document.getElementById('ay').textContent = data.ay;
+            document.getElementById('az').textContent = data.az;
+            document.getElementById('gx').textContent = data.gx;
+            document.getElementById('gy').textContent = data.gy;
+            document.getElementById('gz').textContent = data.gz;
+            document.getElementById('motorA').textContent = data.motorA;
+            document.getElementById('motorB').textContent = data.motorB;
+            
+            // Update PID values if received
+            if (data.Kp !== undefined) setIfIdle('kpInput', data.Kp, 'KP');
+            if (data.Ki !== undefined) setIfIdle('kiInput', data.Ki, 'KI');
+            if (data.Kd !== undefined) setIfIdle('kdInput', data.Kd, 'KD');
+            if (data.target !== undefined) setIfIdle('targetInput', data.target, 'TARGET');
+            if (data.maxSpeed !== undefined) setIfIdle('speedInput', data.maxSpeed, 'SPEED');
+            if (data.minSpeed !== undefined) setIfIdle('minInput', data.minSpeed, 'MIN');
+            if (data.balance !== undefined) {
+                const toggle = document.getElementById('balanceToggle');
+                if (data.balance) {
+                    toggle.classList.add('active');
+                } else {
+                    toggle.classList.remove('active');
+                }
+            }
+        } catch (error) {
+            console.error("Error parsing JSON:", error);
+        }
+    }
+
+    function getDateTime() {
+        var currentdate = new Date();
+        var day = ("00" + currentdate.getDate()).slice(-2);
+        var month = ("00" + (currentdate.getMonth() + 1)).slice(-2);
+        var year = currentdate.getFullYear();
+        var hours = ("00" + currentdate.getHours()).slice(-2);
+        var minutes = ("00" + currentdate.getMinutes()).slice(-2);
+        var seconds = ("00" + currentdate.getSeconds()).slice(-2);
+        return day + "/" + month + "/" + year + " at " + hours + ":" + minutes + ":" + seconds;
+    }
+
+    function setupSliders() {
+        const sliderA = document.getElementById('sliderA');
+        const sliderB = document.getElementById('sliderB');
+        const sliderValueA = document.getElementById('sliderValueA');
+        const sliderValueB = document.getElementById('sliderValueB');
+
+        sliderA.oninput = function() {
+            sliderValueA.textContent = this.value;
+            sendMotorCommand(this.value, sliderB.value);
+        };
+
+        sliderB.oninput = function() {
+            sliderValueB.textContent = this.value;
+            sendMotorCommand(sliderA.value, this.value);
+        };
+    }
+
+    async function sendMotorCommand(speedA, speedB) {
+        if (!bleControlCharacteristic) {
+            console.log('Not connected');
+            return;
+        }
+        try {
+            const command = speedA + ',' + speedB;
+            const encoder = new TextEncoder();
+            await bleControlCharacteristic.writeValue(encoder.encode(command));
+        } catch (error) {
+            console.error('Error sending command:', error);
+        }
+    }
+
+    async function sendPID(type) {
+        if (!bleControlCharacteristic) {
+            alert('Not connected to robot!');
+            return;
+        }
+        try {
+            let value, command;
+            if (type === 'TARGET') {
+                value = document.getElementById('targetInput').value;
+                command = 'TARGET:' + value;
+            } else if (type === 'KP') {
+                value = document.getElementById('kpInput').value;
+                command = 'KP:' + value;
+            } else if (type === 'KI') {
+                value = document.getElementById('kiInput').value;
+                command = 'KI:' + value;
+            } else if (type === 'KD') {
+                value = document.getElementById('kdInput').value;
+                command = 'KD:' + value;
+            } else if (type === 'MIN') {
+                value = document.getElementById('minInput').value;
+                command = 'MIN:' + value;
+            } else if (type === 'SPEED') {
+                value = document.getElementById('speedInput').value;
+                command = 'SPEED:' + value;
+            }
+            
+            const encoder = new TextEncoder();
+            await bleControlCharacteristic.writeValue(encoder.encode(command));
+            updateHold[type] = Date.now() + 800; // hold incoming updates briefly
+            console.log('Sent:', command);
+        } catch (error) {
+            console.error('Error sending PID:', error);
+        }
+    }
+
+    async function toggleBalance() {
+        if (!bleControlCharacteristic) {
+            alert('Not connected to robot!');
+            return;
+        }
+        
+        const toggle = document.getElementById('balanceToggle');
+        const isActive = toggle.classList.contains('active');
+        
+        try {
+            const command = 'BALANCE:' + (isActive ? '0' : '1');
+            const encoder = new TextEncoder();
+            await bleControlCharacteristic.writeValue(encoder.encode(command));
+            
+            if (isActive) {
+                toggle.classList.remove('active');
+            } else {
+                toggle.classList.add('active');
+            }
+            console.log('Balance mode:', !isActive);
+        } catch (error) {
+            console.error('Error toggling balance:', error);
+        }
+    }
+
+    function quickMove(speedA, speedB) {
+        document.getElementById('sliderA').value = speedA;
+        document.getElementById('sliderB').value = speedB;
+        document.getElementById('sliderValueA').textContent = speedA;
+        document.getElementById('sliderValueB').textContent = speedB;
+        sendMotorCommand(speedA, speedB);
+    }
+
+    function stopMotors() {
+        quickMove(0, 0);
+    }
+</script>
+</body>
+</html>

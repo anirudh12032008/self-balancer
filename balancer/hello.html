@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MPU6050 BLE Monitor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 700px;
+            width: 100%;
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        .status {
+            text-align: center;
+            padding: 12px;
+            background: #f44336;
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        .status.connected {
+            background: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        .angles-section {
+            margin-bottom: 25px;
+        }
+        .angle-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 10px 0;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .angle-label {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .angle-value {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .data-box {
+            background: #f7f7f7;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+            transition: transform 0.2s;
+        }
+        .data-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .data-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        .data-value {
+            font-size: 20px;
+            color: #333;
+            font-weight: bold;
+        }
+        .accel { border-left: 4px solid #4CAF50; }
+        .gyro { border-left: 4px solid #2196F3; }
+        .timestamp {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Balancer Robot</h1>
+        <div class="subtitle">MPU6050 Sensor Monitor via BLE</div>
+        
+        <button id="connectBtn">Connect via Bluetooth</button>
+        
+        <div class="status" id="status">● Disconnected</div>
+        
+        <div class="angles-section">
+            <div class="angle-box">
+                <div class="angle-label">Roll Angle (X)</div>
+                <div class="angle-value" id="roll">0.00°</div>
+            </div>
+            <div class="angle-box">
+                <div class="angle-label">Pitch Angle (Y)</div>
+                <div class="angle-value" id="pitch">0.00°</div>
+            </div>
+        </div>
+        
+        <div class="data-grid">
+            <div class="data-box accel">
+                <div class="data-label">Accel X</div>
+                <div class="data-value" id="ax">0</div>
+            </div>
+            <div class="data-box accel">
+                <div class="data-label">Accel Y</div>
+                <div class="data-value" id="ay">0</div>
+            </div>
+            <div class="data-box accel">
+                <div class="data-label">Accel Z</div>
+                <div class="data-value" id="az">0</div>
+            </div>
+            <div class="data-box gyro">
+                <div class="data-label">Gyro X</div>
+                <div class="data-value" id="gx">0</div>
+            </div>
+            <div class="data-box gyro">
+                <div class="data-label">Gyro Y</div>
+                <div class="data-value" id="gy">0</div>
+            </div>
+            <div class="data-box gyro">
+                <div class="data-label">Gyro Z</div>
+                <div class="data-value" id="gz">0</div>
+            </div>
+        </div>
+        
+        <div class="timestamp">Last reading: <span id="timestamp">-</span></div>
+    </div>
+
+<script>
+    const connectBtn = document.getElementById('connectBtn');
+    const messageDiv = document.getElementById('message');
+    const statusDiv = document.getElementById('status');
+
+    const SERVICE_UUID = '19b10000-e8f2-537e-4f6c-d104768a1214';
+    const CHAR_UUID = '19b10001-e8f2-537e-4f6c-d104768a1214';
+
+    let bleServer;
+    let bleCharacteristic;
+
+    connectBtn.addEventListener('click', connectBLE);
+
+    async function connectBLE() {
+        try {
+            if (!navigator.bluetooth) {
+                alert('Web Bluetooth is not supported! Use Chrome, Edge, or Opera.');
+                return;
+            }
+
+            statusDiv.textContent = 'Connecting...';
+
+            const device = await navigator.bluetooth.requestDevice({
+                filters: [{name: 'ESP32'}],
+                optionalServices: [SERVICE_UUID]
+            });
+
+            statusDiv.textContent = 'Connecting to GATT Server...';
+            bleServer = await device.gatt.connect();
+
+            statusDiv.textContent = 'Getting Service...';
+            const service = await bleServer.getPrimaryService(SERVICE_UUID);
+
+            statusDiv.textContent = 'Getting Characteristic...';
+            bleCharacteristic = await service.getCharacteristic(CHAR_UUID);
+
+            // Start notifications
+            await bleCharacteristic.startNotifications();
+            bleCharacteristic.addEventListener('characteristicvaluechanged', handleValueChanged);
+
+            // Read initial value
+            const value = await bleCharacteristic.readValue();
+            const text = new TextDecoder().decode(value);
+            updateDisplay(text);
+            statusDiv.textContent = '● Connected';
+            statusDiv.classList.add('connected');
+        } catch (error) {
+            console.error('Error:', error);
+            statusDiv.textContent = '● Connection failed: ' + error;
+            statusDiv.classList.remove('connected');
+        }
+    }
+
+    function onDisconnected(event) {
+        console.log('Device Disconnected');
+        statusDiv.textContent = '● Disconnected';
+        statusDiv.classList.remove('connected');
+    }   
+    
+
+    function handleValueChanged(event) {
+        const value = event.target.value;
+        const text = new TextDecoder().decode(value);
+        updateDisplay(text);
+        document.getElementById('timestamp').textContent = getDateTime();
+    }
+
+    function updateDisplay(jsonString) {
+        try {
+            const data = JSON.parse(jsonString);
+            document.getElementById('roll').textContent = data.roll + '°';
+            document.getElementById('pitch').textContent = data.pitch + '°';
+            document.getElementById('ax').textContent = data.ax;
+            document.getElementById('ay').textContent = data.ay;
+            document.getElementById('az').textContent = data.az;
+            document.getElementById('gx').textContent = data.gx;
+            document.getElementById('gy').textContent = data.gy;
+            document.getElementById('gz').textContent = data.gz;
+        } catch (error) {
+            console.error("Error parsing JSON:", error);
+        }
+    }
+
+    function getDateTime() {
+        var currentdate = new Date();
+        var day = ("00" + currentdate.getDate()).slice(-2);
+        var month = ("00" + (currentdate.getMonth() + 1)).slice(-2);
+        var year = currentdate.getFullYear();
+        var hours = ("00" + currentdate.getHours()).slice(-2);
+        var minutes = ("00" + currentdate.getMinutes()).slice(-2);
+        var seconds = ("00" + currentdate.getSeconds()).slice(-2);
+        return day + "/" + month + "/" + year + " at " + hours + ":" + minutes + ":" + seconds;
+    }
+</script>
+</body>
+</html>

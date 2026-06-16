@@ -1,6 +1,8 @@
 # Wobbler
 Wobbler is a self balancer robot which uses a mpu6050 sensor to balance itself using a pid feedback loop, the robot is built using an esp32 mcu and a drv8833 motor driver and is powered by a 2s lipo battery! it also has a custom 3D printed chassis and wheels!
 
+Build Demo: https://youtu.be/Vb39nD6lDH8
+
 <img width="1410" height="2000" alt="You A5 (3)" src="https://github.com/user-attachments/assets/38565419-5bbf-4407-9d5e-85b511f385fc" />
 
 Its main purpose is to act as kinda a fun project I created for learning purposes and to later improve it by adding a camera and a few more components to make it even cooler! this was created during hack club events -> Blueprint and Fallout

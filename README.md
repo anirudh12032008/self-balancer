@@ -23,6 +23,10 @@ This project uses C++ as the programming language and Autodesk Fusion 360 for th
 ### 3D Render:
 <img width="3420" height="1572" alt="wobbles Background Removed" src="https://github.com/user-attachments/assets/5dfcc7d9-c9ed-460d-8b2d-fb04c3188f7b" />
 
+### Wiring Diagram
+<img width="1299" height="901" alt="Screenshot 2026-06-16 at 9 00 25 PM" src="https://github.com/user-attachments/assets/75df843e-46a3-47fd-af6f-291fb023f25d" />
+
+
 ### Final Videos:
 https://github.com/user-attachments/assets/5d848cd7-b6d0-4903-bd4d-ccb802f6fd79
 https://github.com/user-attachments/assets/eca6a58a-7bc6-433e-b645-6a5e92e3a5d4

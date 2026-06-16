@@ -21,6 +21,11 @@ This project uses C++ as the programming language and Autodesk Fusion 360 for th
 ### 3D Render:
 <img width="3420" height="1572" alt="wobbles Background Removed" src="https://github.com/user-attachments/assets/5dfcc7d9-c9ed-460d-8b2d-fb04c3188f7b" />
 
+### Final Videos:
+https://github.com/user-attachments/assets/5d848cd7-b6d0-4903-bd4d-ccb802f6fd79
+https://github.com/user-attachments/assets/eca6a58a-7bc6-433e-b645-6a5e92e3a5d4
+
+
 Videos to use in journal:
 https://github.com/user-attachments/assets/205c8fed-a7af-4bac-9d35-2ba8407895d8
 

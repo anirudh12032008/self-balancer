@@ -31,6 +31,19 @@ This project uses C++ as the programming language and Autodesk Fusion 360 for th
 4. The MPU6050 sensor continuously reads the tilt angle and the motor driver adjusts motor speed to maintain balance
 5. Use the serial monitor to view sensor readings and PID debug information
 
+## Bill of Materials
+
+| Name | Quantity | Unit Cost (INR) | Total Cost (INR) | Total Cost (USD) | Link |
+|------|----------|-----------------|------------------|------------------|------|
+| ESP32 | 1 | ₹425 | ₹425 | $4.52 | [Buy](https://robocraze.com/products/esp32-development-board?variant=40193649803417) |
+| MPU6050 | 1 | ₹154 | ₹154 | $1.64 | [Buy](https://robocraze.com/products/mpu-6050-triple-axis-accelerometer-gyroscope-module?variant=40192322011289) |
+| 18650 LiPo Battery | 2 | ₹129 | ₹258 | $2.74 | [Buy](https://robocraze.com/products/3-7v-2600mah-18650-battery?variant=44016380608736) |
+| Buck Converter | 1 | ₹40 | ₹40 | $0.43 | [Buy](https://robocraze.com/products/lm2596-mini-360-power-supply-step-down-module?variant=40194415001753) |
+| 3D Printed Parts | 1 | — | — | — | [Filament](https://india.numakers.com/products/pla-filament?variant=44123925676201) |
+| **Total** | | | **₹877** | **$9.33** | |
+
+> All prices are without tax. USD conversion based on purchase-time rates.
+
 ## Images:
 ### Final build:
 <img width="388" height="315" alt="Screenshot 2026-06-16 at 8 35 33 PM" src="https://github.com/user-attachments/assets/38746d2a-c50c-443e-b6e0-bd88d1a0a696" />

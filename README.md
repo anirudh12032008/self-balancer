@@ -41,6 +41,8 @@ This project uses C++ as the programming language and Autodesk Fusion 360 for th
 <img width="3420" height="1572" alt="wobbles Background Removed" src="https://github.com/user-attachments/assets/5dfcc7d9-c9ed-460d-8b2d-fb04c3188f7b" />
 
 ### Wiring Diagram
+<img width="1042" height="575" alt="Screenshot 2026-06-24 at 7 05 11 PM" src="https://github.com/user-attachments/assets/b32b69a1-3cae-4905-83bf-c63237caab61" />
+
 <img width="1299" height="901" alt="Screenshot 2026-06-16 at 9 00 25 PM" src="https://github.com/user-attachments/assets/75df843e-46a3-47fd-af6f-291fb023f25d" />
 
 

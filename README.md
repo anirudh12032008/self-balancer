@@ -16,56 +16,13 @@ This project uses C++ as the programming language and Autodesk Fusion 360 for th
 
 ## How to Build and Use
 
-### Prerequisites
-- Check [BOM.csv](BOM.csv) for the complete list of components and materials needed
-- 3D printer (for chassis, battery cover, and wheel components)
-- Laser cutter (for acrylic panels) or manual cutting tools
-- Soldering iron and solder
-- USB cable for programming the ESP32
+1. Print the following parts from the 3D_CAD foldder
 
-### Hardware Assembly Steps
-1. **3D Print Components**: Print the following parts from the [3D_CAD/](3D_CAD/) folder:
-   - BODY.step (main chassis)
-   - Wheel1.step (x2 wheels)
-   - battery_cover.step
-   - top cover.step
+2. Follow the wiring diagram above to connect evreything
 
-2. **Laser Cut Panels**: Use the DXF files from [dxf(for laser cutting)/](dxf(for laser cutting)/) to cut acrylic panels for:
-   - Front, side, and bottom panels for structural support
+3. Assemble the 3D printed chassis, mount motors, attach wheels, and secure the battery ( its easy tbh)
 
-3. **Wire Assembly**: Follow the [wiring diagram](#wiring-diagram) above to connect:
-   - ESP32 MCU to DRV8833 motor driver
-   - Motor driver to DC motors (wheels)
-   - MPU6050 sensor to ESP32 (I2C pins)
-   - 2S LiPo battery to power distribution
-
-4. **Mechanical Assembly**: Assemble the 3D printed chassis, mount motors, attach wheels, and secure the battery
-
-### Firmware Setup and Flashing
-1. Navigate to the firmware directory:
-   ```bash
-   cd Code/Balance\ bot\(platformIO\)
-   ```
-
-2. Install PlatformIO (if not already installed):
-   ```bash
-   pip install platformio
-   ```
-
-3. Build the project:
-   ```bash
-   pio run
-   ```
-
-4. Connect the ESP32 via USB and flash the firmware:
-   ```bash
-   pio run -t upload
-   ```
-
-5. Monitor the serial output:
-   ```bash
-   pio device monitor
-   ```
+4. Flash firmware to the ESP32 using the available code
 
 ### How to Use
 1. Power on the robot by connecting the LiPo battery
@@ -91,15 +48,4 @@ This project uses C++ as the programming language and Autodesk Fusion 360 for th
 https://github.com/user-attachments/assets/5d848cd7-b6d0-4903-bd4d-ccb802f6fd79
 https://github.com/user-attachments/assets/eca6a58a-7bc6-433e-b645-6a5e92e3a5d4
 
-
-Videos to use in journal:
-https://github.com/user-attachments/assets/205c8fed-a7af-4bac-9d35-2ba8407895d8
-
-https://github.com/user-attachments/assets/c7c59b8b-4fc7-4ee1-8911-51263bc7b427
-
-https://github.com/user-attachments/assets/c89bb0b9-8fde-477a-9b1f-8c3182f0837f
-
-
-
-https://github.com/user-attachments/assets/e8a45102-77c9-4b75-9c57-6067076b8ff2
 

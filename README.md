@@ -3,7 +3,7 @@ Wobbler is a self balancer robot which uses a mpu6050 sensor to balance itself u
 
 Build Demo: https://youtu.be/Vb39nD6lDH8
 
-<img width="1410" height="2000" alt="You A5 (3)" src="https://github.com/user-attachments/assets/38565419-5bbf-4407-9d5e-85b511f385fc" />
+<img width="1410" height="2000" alt="You A5 (5)" src="https://github.com/user-attachments/assets/0321e46b-6eac-446d-8130-0b5784e18b5e" />
 
 Its main purpose is to act as kinda a fun project I created for learning purposes and to later improve it by adding a camera and a few more components to make it even cooler! this was created during hack club events -> Blueprint and Fallout
 

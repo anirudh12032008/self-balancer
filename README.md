@@ -14,6 +14,66 @@ No pcb was created for this project as all the components are connected using ju
 
 This project uses C++ as the programming language and Autodesk Fusion 360 for the 3D modeling
 
+## How to Build and Use
+
+### Prerequisites
+- Check [BOM.csv](BOM.csv) for the complete list of components and materials needed
+- 3D printer (for chassis, battery cover, and wheel components)
+- Laser cutter (for acrylic panels) or manual cutting tools
+- Soldering iron and solder
+- USB cable for programming the ESP32
+
+### Hardware Assembly Steps
+1. **3D Print Components**: Print the following parts from the [3D_CAD/](3D_CAD/) folder:
+   - BODY.step (main chassis)
+   - Wheel1.step (x2 wheels)
+   - battery_cover.step
+   - top cover.step
+
+2. **Laser Cut Panels**: Use the DXF files from [dxf(for laser cutting)/](dxf(for laser cutting)/) to cut acrylic panels for:
+   - Front, side, and bottom panels for structural support
+
+3. **Wire Assembly**: Follow the [wiring diagram](#wiring-diagram) above to connect:
+   - ESP32 MCU to DRV8833 motor driver
+   - Motor driver to DC motors (wheels)
+   - MPU6050 sensor to ESP32 (I2C pins)
+   - 2S LiPo battery to power distribution
+
+4. **Mechanical Assembly**: Assemble the 3D printed chassis, mount motors, attach wheels, and secure the battery
+
+### Firmware Setup and Flashing
+1. Navigate to the firmware directory:
+   ```bash
+   cd Code/Balance\ bot\(platformIO\)
+   ```
+
+2. Install PlatformIO (if not already installed):
+   ```bash
+   pip install platformio
+   ```
+
+3. Build the project:
+   ```bash
+   pio run
+   ```
+
+4. Connect the ESP32 via USB and flash the firmware:
+   ```bash
+   pio run -t upload
+   ```
+
+5. Monitor the serial output:
+   ```bash
+   pio device monitor
+   ```
+
+### How to Use
+1. Power on the robot by connecting the LiPo battery
+2. Place the robot upright on a flat surface
+3. The PID feedback control system will automatically balance the robot
+4. The MPU6050 sensor continuously reads the tilt angle and the motor driver adjusts motor speed to maintain balance
+5. Use the serial monitor to view sensor readings and PID debug information
+
 ## Images:
 ### Final build:
 <img width="388" height="315" alt="Screenshot 2026-06-16 at 8 35 33 PM" src="https://github.com/user-attachments/assets/38746d2a-c50c-443e-b6e0-bd88d1a0a696" />
